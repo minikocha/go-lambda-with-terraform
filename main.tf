@@ -26,31 +26,6 @@ resource "terraform_data" "this" {
   }
 }
 
-resource "aws_s3_bucket" "this" {
-  bucket_prefix = "go-lambda-with-terraform"
-}
-
-resource "aws_s3_bucket_versioning" "this" {
-  bucket = aws_s3_bucket.this.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_object" "this" {
-  depends_on = [terraform_data.this, ]
-
-  bucket = aws_s3_bucket.this.id
-  key    = "bootstrap.zip"
-  source = "${path.module}/bin/bootstrap.zip"
-
-  lifecycle {
-    # NOTE: `etag = filemd5("...")`だと常にビルドしたバイナリファイルがローカルにあることを求められるため、`replace_triggered_by`で代用する
-    replace_triggered_by = [terraform_data.this, ]
-  }
-}
-
 resource "aws_iam_role" "this" {
   assume_role_policy = jsonencode({
     "Version" = "2012-10-17"
@@ -75,12 +50,11 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 resource "aws_lambda_function" "this" {
+  filename      = "${path.module}/bin/bootstrap.zip"
   function_name = "go-lambda-with-terraform"
   handler       = "."
   role          = aws_iam_role.this.arn
   runtime       = "provided.al2023"
-  s3_bucket     = aws_s3_bucket.this.id
-  s3_key        = aws_s3_object.this.key
 
   logging_config {
     log_format = "Text"
