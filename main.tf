@@ -9,7 +9,7 @@ resource "terraform_data" "this" {
   triggers_replace = [local.hash, ]
 
   provisioner "local-exec" {
-    command = "go build -mod=readonly -ldflags='-s -w' -o ../bin/bootstrap ."
+    command = "go build -mod=readonly -ldflags='-s' -o ../bin/bootstrap ."
     environment = {
       CGO_ENABLED = "0"
       GOARCH      = "amd64"
