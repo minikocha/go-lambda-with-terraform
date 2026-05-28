@@ -91,3 +91,15 @@ resource "aws_lambda_function" "this" {
     replace_triggered_by = [terraform_data.this, ]
   }
 }
+
+// NOTE: リソース名は`sam_metadata_`で始める必要がある。※SAMの仕様
+resource "null_resource" "sam_metadata_this" {
+  depends_on = [terraform_data.this, ]
+
+  triggers = {
+    "built_output_path"    = "${path.module}/bin"
+    "original_source_code" = "${path.module}/src"
+    "resource_name"        = "aws_lambda_function.this"
+    "resource_type"        = "ZIP_LAMBDA_FUNCTION"
+  }
+}

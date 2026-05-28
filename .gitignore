@@ -16,3 +16,6 @@ crash.*.log
 bin/*
 !bin/.gitkeep
 
+### SAM ###
+**/.aws-sam
+**/.aws-sam-iacs
